@@ -29,12 +29,23 @@ export class TasksService {
   getFilteredTasks(filterDto: GetTasksFilterDto): Task[] {
     const { status, search } = filterDto;
     return this.getAllTasks().filter(
-      (task: Task): boolean => (
-        task.status === status && (
+      (task: Task): boolean => {
+
+        if (status && !(
+          task.status === filterDto.status
+        )) {
+          return false;
+        }
+
+        if (search && !(
           task.title.includes(search) ||
           task.description.includes(search)
-        )
-      )
+        )) {
+          return false;
+        }
+
+        return true;
+      }
     );
   }
 

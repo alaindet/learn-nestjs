@@ -15,6 +15,11 @@ GET {{baseurl}}/tasks
 
 ###
 
+# Get all tasks (filters)
+GET {{baseurl}}/tasks?status=IN_PROGRESS&search=zz
+
+###
+
 # Get one task
 GET {{baseurl}}/tasks/{{id}}
 
