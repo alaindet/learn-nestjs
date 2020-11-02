@@ -3,7 +3,6 @@ import { v4 as uuid } from 'uuid';
 
 import { Task, TaskStatus } from './tasks.model';
 import { CreateTaskDto } from './dto/create-task.dto';
-import { UpdateTaskDto } from './dto/update-task.dto';
 
 @Injectable()
 export class TasksService {
@@ -36,16 +35,12 @@ export class TasksService {
     );
   }
 
-  updateTask(id: Task['id'], updateTaskDto: UpdateTaskDto): Task {
-    console.log('id', id, 'updateTaskDto', updateTaskDto);
+  updateTaskStatus(id: Task['id'], status: Task['status']): Task {
     let updatedTask: Task;
     this.tasks = this.tasks.map(
       (task: Task): Task => {
         if (task.id === id) {
-          updatedTask = {...task};
-          for (const key in updateTaskDto) {
-            updatedTask[key] = updateTaskDto[key];
-          }
+          updatedTask = { ...task, status };
           return updatedTask;
         }
         return task;
