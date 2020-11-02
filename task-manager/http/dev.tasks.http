@@ -24,7 +24,15 @@ GET {{baseurl}}/tasks/{{id}}
 PATCH {{baseurl}}/tasks/{{id}}/status
 Content-Type: application/x-www-form-urlencoded
 
-status=In Progress
+status=IN_PROGRESS
+
+###
+
+# ERROR: Update task status
+PATCH {{baseurl}}/tasks/{{id}}/status
+Content-Type: application/x-www-form-urlencoded
+
+status=HELLO_WORLD
 
 ###
 
