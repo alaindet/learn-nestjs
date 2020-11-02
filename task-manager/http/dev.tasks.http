@@ -1,0 +1,32 @@
+# Env
+@baseurl = http://localhost:3000
+@id = any-task-id
+
+# Create task
+POST {{baseurl}}/tasks
+Content-Type: application/x-www-form-urlencoded
+
+title=this is the title&description=this is the description
+
+###
+
+# Get all tasks
+GET {{baseurl}}/tasks
+
+###
+
+# Get one task
+GET {{baseurl}}/tasks/{{id}}
+
+###
+
+# Update task status
+PATCH {{baseurl}}/tasks/{{id}}/status
+Content-Type: application/x-www-form-urlencoded
+
+status=In Progress
+
+###
+
+# Delete
+DELETE {{baseurl}}/tasks/{{id}}

@@ -36,17 +36,12 @@ export class TasksController {
     @Param('id') id: Task['id'],
     @Body('status') status: Task['status'],
   ): Task {
-    console.log('status', status);
     return this.tasksService.updateTaskStatus(id, status);
   }
 
   @Delete('/:id')
   deleteTask(@Param('id') id: Task['id']): string {
-
-    if (this.tasksService.deleteTask(id)) {
-      return `Task with id = ${id} was deleted`;
-    }
-
-    return `We could not remove task with id = ${id}`;
+    this.tasksService.deleteTask(id);
+    return `Task with id "${id}" was deleted`;
   }
 }

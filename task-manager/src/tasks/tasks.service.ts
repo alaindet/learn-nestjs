@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { v4 as uuid } from 'uuid';
 
 import { Task, TaskStatus } from './tasks.model';
@@ -11,18 +11,14 @@ export class TasksService {
   private tasks: Task[] = [];
 
   createTask(createTaskDto: CreateTaskDto): Task {
-
     const { title, description } = createTaskDto;
-
     const task: Task = {
       id: uuid(),
       title,
       description,
       status: TaskStatus.Open,
     };
-
     this.tasks = [...this.tasks, task];
-
     return task;
   }
 
@@ -43,30 +39,34 @@ export class TasksService {
   }
 
   getTaskById(id: Task['id']): Task {
-    return this.tasks.find(
-      (task: Task): boolean => task.id === id
-    );
+    const index = this.getTaskIndexById(id);
+    return this.tasks[index];
   }
 
   updateTaskStatus(id: Task['id'], status: Task['status']): Task {
-    let updatedTask: Task;
-    this.tasks = this.tasks.map(
-      (task: Task): Task => {
-        if (task.id === id) {
-          updatedTask = { ...task, status };
-          return updatedTask;
-        }
-        return task;
-      }
-    );
+    const index = this.getTaskIndexById(id);
+    const updatedTask = { ...this.tasks[index], status };
+    this.tasks = [
+      ...this.tasks.slice(0, index),
+      updatedTask,
+      ...this.tasks.slice(index + 1),
+    ];
     return updatedTask;
   }
 
-  deleteTask(id: Task['id']): boolean {
-    const prevLength = this.tasks.length;
-    this.tasks = this.tasks.filter(
-      (task: Task): boolean => task.id !== id
-    );
-    return prevLength > this.tasks.length;
+  deleteTask(id: Task['id']): void {
+    const index = this.getTaskIndexById(id);
+    this.tasks = [
+      ...this.tasks.slice(0, index),
+      ...this.tasks.slice(index + 1),
+    ];
+  }
+
+  private getTaskIndexById(id: Task['id']): number {
+    const index = this.tasks.findIndex((task: Task): boolean => task.id === id);
+    if (index === -1) {
+      throw new NotFoundException(`Task with id ${id} not found`);
+    }
+    return index;
   }
 }
