@@ -1,6 +1,6 @@
 # Env
 @baseurl = http://localhost:3000
-@id = any-task-id
+@id = 123
 
 # Create task
 POST {{baseurl}}/tasks
