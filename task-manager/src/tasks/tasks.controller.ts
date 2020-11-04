@@ -2,7 +2,7 @@ import { Controller, Body, Get, Post, Delete, Param, Patch, Query, UsePipes, Val
 
 import { Task } from './task.entity';
 import { TasksService } from './tasks.service';
-// import { CreateTaskDto } from './dto/create-task.dto';
+import { CreateTaskDto } from './dto/create-task.dto';
 // import { GetTasksFilterDto } from './dto/get-tasks-filter.dto';
 // import { TaskStatusValidationPipe } from './pipes/task-status-validation.pipe';
 
@@ -13,11 +13,11 @@ export class TasksController {
     private tasksService: TasksService,
   ) {}
 
-  // @Post()
-  // @UsePipes(ValidationPipe)
-  // createTask(@Body() createTaskDto: CreateTaskDto): Task {
-  //   return this.tasksService.createTask(createTaskDto);
-  // }
+  @Post()
+  @UsePipes(ValidationPipe)
+  createTask(@Body() createTaskDto: CreateTaskDto): Promise<Task> {
+    return this.tasksService.createTask(createTaskDto);
+  }
 
   // @Get()
   // getTasks(@Query(ValidationPipe) filterDto: GetTasksFilterDto): Task[] {
