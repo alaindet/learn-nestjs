@@ -1,6 +1,6 @@
 import { IsNotEmpty } from 'class-validator';
 
-import { Task } from '../tasks.model';
+import { Task } from '../task.entity';
 
 export class CreateTaskDto {
 
