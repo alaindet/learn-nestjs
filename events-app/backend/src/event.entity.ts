@@ -17,7 +17,7 @@ export class Event {
 
   @Column('datetime', {
     transformer: {
-      from(timestamp: string): Date {
+      from(timestamp: number): Date {
         return new Date(timestamp);
       },
       to(date: Date): number {
