@@ -2,14 +2,14 @@ import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post } from '@ne
 
 import { CreateEventDto } from './create-event.dto';
 import { UpdateEventDto } from './update-event.dto';
-import { EventEntity } from './event.entity';
+import { Event } from './event.entity';
 
 @Controller({
   path: '/events',
 })
 export class EventsController {
 
-  private events: EventEntity[] = [];
+  private events: Event[] = [];
 
   @Get('/')
   findAll() {
@@ -24,7 +24,7 @@ export class EventsController {
 
   @Post('/')
   create(@Body() dto: CreateEventDto) {
-    const event = new EventEntity();
+    const event = new Event();
     event.id = Date.now();
     event.name = dto.name;
     event.description = dto.description;
@@ -37,13 +37,16 @@ export class EventsController {
   @Patch('/:id')
   update(@Param('id') id: string, @Body() dto: UpdateEventDto) {
     const searchedId = +id;
+    let result: Event;
     this.events = this.events.map(event => {
       if (event.id !== searchedId) {
         return event;
       }
       const when = dto?.when ? new Date(dto.when) : event.when;
-      return { ...event, ...dto, when };
+      result = { ...event, ...dto, when };
+      return result;
     });
+    return result;
   }
 
   @Delete('/:id')
