@@ -7,6 +7,7 @@ export class AppItalianService {
     @Inject('DUMMY_MESSAGE') private readonly dummyMessage: string,
   ) {
     console.log('AppItalianService.constructor', this.dummyMessage);
+    console.log(process.env.DB_HOST);
   }
 
   getHello(): string {

@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule } from '@nestjs/config';
 
-import { TYPEORM_CONFIG } from './config/typeorm.config';
+import typeOrmConfigDev from './config/typeorm.config.dev';
+import typeOrmConfigProd from './config/typeorm.config.prod';
 import { AppController } from './app.controller';
 
 import { AppService } from './app.service';
@@ -11,7 +13,21 @@ import { AppDummy } from './app-dummy';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot(TYPEORM_CONFIG),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      expandVariables: true,
+      // envFilePath: '.env', // Default
+      // ignoreEnvFile: true, // If using Docker to containerize this app
+      load: [
+        typeOrmConfigDev,
+        typeOrmConfigProd,
+      ],
+    }),
+    TypeOrmModule.forRootAsync({
+      useFactory: process.env.NODE_ENV === 'production'
+        ? typeOrmConfigDev
+        : typeOrmConfigProd
+    }),
     EventsModule,
   ],
   controllers: [AppController],
