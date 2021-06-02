@@ -10,8 +10,7 @@ import { Event } from '../entities/event.entity';
 export class EventsController {
 
   constructor(
-    @InjectRepository(Event)
-    private readonly repository: Repository<Event>,
+    @InjectRepository(Event) private readonly repository: Repository<Event>,
   ) {}
 
   @Get('/')
@@ -26,7 +25,11 @@ export class EventsController {
   }
 
   @Post('/')
-  async create(@Body() input: CreateEventDto) {
+  // @UsePipes()
+  async create(
+    // @Body(new ValidationPipe({ groups: ['create'] })) input: CreateEventDto,
+    @Body(new ValidationPipe()) input: CreateEventDto,
+  ) {
     return await this.repository.save({
       ...input,
       when: new Date(input.when),
@@ -34,7 +37,11 @@ export class EventsController {
   }
 
   @Patch('/:id')
-  async update(@Param('id') id: string, @Body() input: UpdateEventDto) {
+  async update(
+    @Param('id') id: string,
+    // @Body(new ValidationPipe({ groups: ['update'] })) input: UpdateEventDto,
+    @Body(new ValidationPipe()) input: UpdateEventDto,
+  ) {
     const event = await this.repository.findOne(id);
     return await this.repository.save({
       ...event,
