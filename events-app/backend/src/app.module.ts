@@ -5,8 +5,9 @@ import { TYPEORM_CONFIG } from './config/typeorm.config';
 import { AppController } from './app.controller';
 
 import { AppService } from './app.service';
-import { EventsController } from './events.controller';
-import { Event } from './event.entity';
+import { EventsController } from './events/controllers/events.controller';
+import { EventsDemoController } from './events/controllers/events-demo.controller.';
+import { Event } from './events/entities/event.entity';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { Event } from './event.entity';
   controllers: [
     AppController,
     EventsController,
+    EventsDemoController,
   ],
   providers: [AppService],
 })

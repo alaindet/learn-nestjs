@@ -17,16 +17,13 @@ export class Event {
 
   @Column('datetime', {
     transformer: {
-      from(timestamp: number): Date {
-        return new Date(timestamp);
-      },
-      to(date: Date): number {
-        return date.valueOf();
-      }
+      // From and to database
+      from: (timestamp: number): Date => new Date(timestamp),
+      to: (date: Date): string => date.toISOString(),
     }
   })
   when: Date;
-
+  
   @Column('varchar', { length: 255 })
   where: string;
 }

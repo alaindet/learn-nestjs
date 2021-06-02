@@ -1,6 +1,6 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
-import { Event } from '../event.entity';
+import { Event } from '../events/entities/event.entity';
 
 // TODO: Move values to .env
 export const TYPEORM_CONFIG: TypeOrmModuleOptions = {

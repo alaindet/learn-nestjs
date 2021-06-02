@@ -1,10 +1,10 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Post, ValidationPipe } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, MoreThan, Like } from 'typeorm';
+import { Repository } from 'typeorm';
 
-import { CreateEventDto } from './create-event.dto';
-import { UpdateEventDto } from './update-event.dto';
-import { Event } from './event.entity';
+import { CreateEventDto } from '../dtos/create-event.dto';
+import { UpdateEventDto } from '../dtos/update-event.dto';
+import { Event } from '../entities/event.entity';
 
 @Controller('/events')
 export class EventsController {
@@ -14,30 +14,14 @@ export class EventsController {
     private readonly repository: Repository<Event>,
   ) {}
 
-  @Get('demo')
-  async demo() {
-    return await this.repository.find({
-      where: [
-        {
-          id: MoreThan(3),
-          // AND
-          when: MoreThan(new Date('2021-02-12T13:00:00')),
-        },
-        // OR
-        {
-          description: Like('%meet%'),
-        },
-      ],
-    });
-  }
-
   @Get('/')
   async findAll() {
     return await this.repository.find();
   }
 
   @Get('/:id')
-  async findOne(@Param('id') id: string) {
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    console.log(typeof id);
     return await this.repository.findOne(id);
   }
 
@@ -46,7 +30,6 @@ export class EventsController {
     return await this.repository.save({
       ...input,
       when: new Date(input.when),
-      id: Date.now(),
     });
   }
 
