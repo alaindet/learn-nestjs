@@ -12,8 +12,8 @@ export class EventsDemoController {
     private readonly repository: Repository<Event>,
   ) {}
 
-  @Get('/')
-  async findAll() {
+  @Get('/first')
+  async firstDemo() {
     return await this.repository.find({
       // SELECT id, name FROM events
       select: [
@@ -35,5 +35,13 @@ export class EventsDemoController {
         id: 'DESC',
       },
     });
+  }
+
+  @Get('/second')
+  async secondDemo() {
+    const event = await this.repository.findOne(1, {
+      relations: ['attendees'],
+    });
+    return await event.attendees;
   }
 }
