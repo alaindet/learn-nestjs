@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Post, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Logger, Param, ParseIntPipe, Patch, Post, ValidationPipe } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -9,18 +9,23 @@ import { Event } from '../entities/event.entity';
 @Controller('/events')
 export class EventsController {
 
+  private readonly logger = new Logger(EventsController.name);
+
   constructor(
     @InjectRepository(Event) private readonly repository: Repository<Event>,
   ) {}
 
   @Get('/')
   async findAll() {
-    return await this.repository.find();
+    this.logger.log('EventsController.findall');
+    const events = await this.repository.find();
+    this.logger.debug(`Found ${events.length} events`);
+    return events;
   }
 
   @Get('/:id')
   async findOne(@Param('id', ParseIntPipe) id: number) {
-    console.log(typeof id);
+    this.logger.log('EventsController.findOne');
     return await this.repository.findOne(id);
   }
 

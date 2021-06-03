@@ -4,7 +4,20 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(
+    AppModule,
+    {
+      // TODO: Set on production
+      // cors: {
+      //   origin: '',
+      // },
+      // logger: [
+      //   'error',
+      //   'warn',
+      //   'debug',
+      // ],
+    }
+  );
 
   // One validation group is used if setting a global pipe
   // Multiple validation groups can be used for the same validators if not
