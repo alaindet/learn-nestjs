@@ -2,6 +2,7 @@ import { registerAs } from '@nestjs/config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
 import { Event } from '../events/entities/event.entity';
+import { Attendee } from './../events/entities/attendee.entity';
 
 export default registerAs(
   'typeorm.config',
@@ -15,6 +16,7 @@ export default registerAs(
     synchronize: true,
     entities: [
       Event,
+      Attendee,
     ],
   })
 );
