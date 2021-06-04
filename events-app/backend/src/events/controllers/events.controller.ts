@@ -6,6 +6,7 @@ import { CreateEventDto } from '../dtos/create-event.dto';
 import { UpdateEventDto } from '../dtos/update-event.dto';
 import { Event } from '../entities/event.entity';
 import { Attendee } from '../entities/attendee.entity';
+import { EventsService } from '../services/events.service';
 
 @Controller('/events')
 export class EventsController {
@@ -15,6 +16,7 @@ export class EventsController {
   constructor(
     @InjectRepository(Event) private repository: Repository<Event>,
     @InjectRepository(Attendee) private attendeeRepository: Repository<Attendee>,
+    private readonly eventsService: EventsService,
   ) {}
 
   @Get('/')
@@ -28,7 +30,7 @@ export class EventsController {
   @Get('/:id')
   async findOne(@Param('id', ParseIntPipe) id: number) {
     this.logger.log('EventsController.findOne');
-    const event = await this.repository.findOne(id);
+    const event = await this.eventsService.getEvent(id);
 
     if (!event) {
       throw new NotFoundException();
