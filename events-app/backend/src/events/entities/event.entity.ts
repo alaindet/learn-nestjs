@@ -29,7 +29,8 @@ export class Event {
     () => Attendee,
     attendee => attendee.event,
     {
-      eager: true,
+      // eager: true,
+      cascade: true,
     },
   )
   attendees: Attendee[];

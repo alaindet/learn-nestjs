@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { CreateEventDto } from '../dtos/create-event.dto';
 import { UpdateEventDto } from '../dtos/update-event.dto';
 import { Event } from '../entities/event.entity';
+import { Attendee } from '../entities/attendee.entity';
 
 @Controller('/events')
 export class EventsController {
@@ -12,7 +13,8 @@ export class EventsController {
   private readonly logger = new Logger(EventsController.name);
 
   constructor(
-    @InjectRepository(Event) private readonly repository: Repository<Event>,
+    @InjectRepository(Event) private repository: Repository<Event>,
+    @InjectRepository(Attendee) private attendeeRepository: Repository<Attendee>,
   ) {}
 
   @Get('/')

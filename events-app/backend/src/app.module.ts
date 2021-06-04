@@ -9,6 +9,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AppItalianService } from './app-italian.service';
 import { EventsModule } from './events/events.module';
+import { SchoolModule } from './school/school.module';
 import { AppDummy } from './app-dummy';
 
 @Module({
@@ -29,6 +30,7 @@ import { AppDummy } from './app-dummy';
         : typeOrmConfigProd
     }),
     EventsModule,
+    SchoolModule,
   ],
   controllers: [AppController],
 

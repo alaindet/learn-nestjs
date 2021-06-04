@@ -3,6 +3,8 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
 import { Event } from '../events/entities/event.entity';
 import { Attendee } from './../events/entities/attendee.entity';
+import { Subject } from './../school/subject.entity';
+import { Teacher } from './../school/teacher.entity';
 
 export default registerAs(
   'typeorm.config',
@@ -18,6 +20,8 @@ export default registerAs(
     entities: [
       Event,
       Attendee,
+      Subject,
+      Teacher,
     ],
   })
 );
