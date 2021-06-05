@@ -6,8 +6,8 @@ import { EventsController } from './controllers/events.controller';
 import { EventsService } from './services/events.service';
 import { Event } from './entities/event.entity';
 import { Attendee } from './entities/attendee.entity';
-import { User } from 'src/auth/user.entity';
-import { Profile } from 'src/auth/profile.entity';
+import { User } from 'src/auth/entities/user.entity';
+import { Profile } from 'src/auth/entities/profile.entity';
 
 @Module({
   imports: [

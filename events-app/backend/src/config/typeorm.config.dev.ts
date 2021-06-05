@@ -5,8 +5,8 @@ import { Event } from 'src/events/entities/event.entity';
 import { Attendee } from 'src/events/entities/attendee.entity';
 import { Subject } from 'src/school/subject.entity';
 import { Teacher } from 'src/school/teacher.entity';
-import { Profile } from 'src/auth/profile.entity';
-import { User } from 'src/auth/user.entity';
+import { Profile } from 'src/auth/entities/profile.entity';
+import { User } from 'src/auth/entities/user.entity';
 
 export default registerAs(
   'typeorm.config',

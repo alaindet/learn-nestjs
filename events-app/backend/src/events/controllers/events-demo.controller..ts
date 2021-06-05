@@ -3,8 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
 
 import { Event } from '../entities/event.entity';
-import { Profile } from 'src/auth/profile.entity';
-import { User } from 'src/auth/user.entity';
+import { Profile } from 'src/auth/entities/profile.entity';
+import { User } from 'src/auth/entities/user.entity';
 
 @Controller('/events-demo')
 export class EventsDemoController {
