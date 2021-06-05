@@ -73,8 +73,19 @@ export class EventsController {
 
   @Delete('/:id')
   @HttpCode(204)
-  async remove(@Param('id') id: string) {
-    const event = await this.repository.findOne(id);
-    await this.repository.remove(event);
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    // const event = await this.repository.findOne(id);
+
+    // if (!event) {
+    //   throw new NotFoundException();
+    // }
+
+    // await this.repository.remove(event);
+
+    const deleted = await this.eventsService.deleteEvent(id);
+
+    if (deleted.affected !== 1) {
+      throw new NotFoundException();
+    }
   }
 }

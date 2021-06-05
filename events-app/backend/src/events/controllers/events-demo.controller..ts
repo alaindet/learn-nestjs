@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
 
 import { Event } from '../entities/event.entity';
+import { Profile } from 'src/auth/profile.entity';
+import { User } from 'src/auth/user.entity';
 
 @Controller('/events-demo')
 export class EventsDemoController {
@@ -10,6 +12,10 @@ export class EventsDemoController {
   constructor(
     @InjectRepository(Event)
     private readonly repository: Repository<Event>,
+    @InjectRepository(User)
+    private readonly userRepo: Repository<User>,
+    @InjectRepository(Profile)
+    private readonly profileRepo: Repository<Profile>,
   ) {}
 
   @Get('/first')
@@ -43,5 +49,31 @@ export class EventsDemoController {
       relations: ['attendees'],
     });
     return await event.attendees;
+  }
+
+  @Get('/third')
+  async thirdDemo() {
+
+    const profile = new Profile();
+    profile.id = 1;
+    profile.age = 30;
+
+    await this.profileRepo.save(profile);
+
+    const user = new User();
+    user.id = 1;
+    user.email = 'john.doe@example.com';
+    user.firstName = 'John';
+    user.lastName = 'Doe';
+    user.username = 'johndoe';
+    user.password = 'johndoe';
+
+    // Add relationship
+    user.profile = profile;
+
+    // // Remove relationship
+    // user.profile = null;
+
+    await this.userRepo.save(user);
   }
 }
