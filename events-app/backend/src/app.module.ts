@@ -5,7 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import typeOrmConfigDev from './config/typeorm.config.dev';
 import typeOrmConfigProd from './config/typeorm.config.prod';
 import { AppController } from './app.controller';
-
+import { AuthModule } from './auth/auth.module';
 import { AppService } from './app.service';
 import { AppItalianService } from './app-italian.service';
 import { EventsModule } from './events/events.module';
@@ -29,6 +29,7 @@ import { AppDummy } from './app-dummy';
         ? typeOrmConfigDev
         : typeOrmConfigProd
     }),
+    AuthModule,
     EventsModule,
     SchoolModule,
   ],
