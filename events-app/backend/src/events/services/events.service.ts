@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { paginate, PaginateOptions } from 'src/shared/pagination/pagination';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 
 import { AttendeeAnswer } from '../entities/attendee.entity';
@@ -29,9 +30,49 @@ export class EventsService {
     return await query.getOne();
   }
 
-  public async getEventsWithAttendeeCountFiltered(
+  public async getEventsWithAttendeeCountFilteredPaginated(
+    filter: ListEvents,
+    paginateOptions: PaginateOptions,
+  ) {
+    const query = this.getEventsWithAttendeeCountFiltered(filter);
+    return await paginate(await query, paginateOptions);
+  }
+
+  public getEventWithAttendeesCount(): SelectQueryBuilder<Event> {
+
+    // It works, but every "loadRelationCountAndMap" performs a query!
+    // Which is a whopping 5 queries
+    return this.getEventsBaseQuery()
+      .loadRelationCountAndMap(
+        'e.attendeesCount', // Virtual property to map to
+        'e.attendees', // Relation property to count on
+      )
+      .loadRelationCountAndMap(
+        'e.attendeesAccepted', // Virtual property to map to
+        'e.attendees', // Relation property to count on
+        'att', // Alias of related table?
+        queryBuilder => queryBuilder
+          .where('att.answer = :answer', { answer: AttendeeAnswer.Accepted })
+      )
+      .loadRelationCountAndMap(
+        'e.attendeesRejected', // Virtual property to map to
+        'e.attendees', // Relation property to count on
+        'att', // Alias of related table?
+        queryBuilder => queryBuilder
+          .where('att.answer = :answer', { answer: AttendeeAnswer.Rejected })
+      )
+      .loadRelationCountAndMap(
+        'e.attendeesMaybe', // Virtual property to map to
+        'e.attendees', // Relation property to count on
+        'att', // Alias of related table?
+        queryBuilder => queryBuilder
+          .where('att.answer = :answer', { answer: AttendeeAnswer.Maybe })
+      );
+  }
+
+  private async getEventsWithAttendeeCountFiltered(
     filter?: ListEvents,
-  ): Promise<any> {
+  ): Promise<SelectQueryBuilder<Event>> {
 
     let query = this.getEventWithAttendeesCount();
 
@@ -72,37 +113,6 @@ export class EventsService {
       }
     }
 
-    return await query.getMany();
-  }
-
-  public getEventWithAttendeesCount(): SelectQueryBuilder<Event> {
-
-    // It works, but every "loadRelationCountAndMap" performs a query!
-    return this.getEventsBaseQuery()
-      .loadRelationCountAndMap(
-        'e.attendeesCount', // Virtual property to map to
-        'e.attendees', // Relation property to count on
-      )
-      .loadRelationCountAndMap(
-        'e.attendeesAccepted', // Virtual property to map to
-        'e.attendees', // Relation property to count on
-        'att', // Alias of related table?
-        queryBuilder => queryBuilder
-          .where('att.answer = :answer', { answer: AttendeeAnswer.Accepted })
-      )
-      .loadRelationCountAndMap(
-        'e.attendeesRejected', // Virtual property to map to
-        'e.attendees', // Relation property to count on
-        'att', // Alias of related table?
-        queryBuilder => queryBuilder
-          .where('att.answer = :answer', { answer: AttendeeAnswer.Rejected })
-      )
-      .loadRelationCountAndMap(
-        'e.attendeesMaybe', // Virtual property to map to
-        'e.attendees', // Relation property to count on
-        'att', // Alias of related table?
-        queryBuilder => queryBuilder
-          .where('att.answer = :answer', { answer: AttendeeAnswer.Maybe })
-      );
+    return await query;
   }
 }
