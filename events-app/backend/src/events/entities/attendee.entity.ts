@@ -2,6 +2,12 @@ import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 't
 
 import { Event } from './event.entity';
 
+export enum AttendeeAnswer {
+  Accepted = 1,
+  Maybe = 2,
+  Rejected = 3,
+}
+
 @Entity('attendees')
 export class Attendee {
 
@@ -10,6 +16,12 @@ export class Attendee {
 
   @Column('varchar')
   name: string;
+
+  @Column('enum', {
+    enum: AttendeeAnswer,
+    default: AttendeeAnswer.Accepted,
+  })
+  answer: number;
 
   // This is mandatory is the other entity has @OneToMany
   @ManyToOne(

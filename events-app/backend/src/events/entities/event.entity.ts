@@ -1,12 +1,6 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
-import { Attendee } from './attendee.entity';
-
-export enum AttendeeAnswer {
-  Accepted = 1,
-  Maybe = 2,
-  Rejected = 3,
-}
+import { Attendee, AttendeeAnswer } from './attendee.entity';
 
 @Entity('events')
 export class Event {
@@ -31,12 +25,6 @@ export class Event {
   @Column('varchar', { length: 255 })
   where: string;
 
-  @Column('enum', {
-    enum: AttendeeAnswer,
-    default: AttendeeAnswer.Accepted,
-  })
-  answer: number;
-
   @OneToMany(
     () => Attendee,
     attendee => attendee.event,
@@ -49,7 +37,7 @@ export class Event {
 
   // Virtual properties, no column
   attendeesCount?: number;
-  attendeesRejected?: number;
-  attendeesMaybe?: number;
   attendeesAccepted?: number;
+  attendeesMaybe?: number;
+  attendeesRejected?: number;
 }

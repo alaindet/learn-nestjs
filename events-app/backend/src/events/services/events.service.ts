@@ -2,8 +2,9 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 
-import { AttendeeAnswer } from '../entities/event.entity';
+import { AttendeeAnswer } from '../entities/attendee.entity';
 import { Event } from '../entities/event.entity';
+import { ListEvents, WhenEventFilter } from '../input/filters/list.events';
 
 @Injectable()
 export class EventsService {
@@ -22,26 +23,86 @@ export class EventsService {
   }
 
   public async getEvent(id: number): Promise<Event | undefined> {
-    const query = this.getEventWithAttendeesCount(id)
+    const query = this.getEventWithAttendeesCount()
       .andWhere('e.id = :id', { id });
     this.logger.debug(query.getSql());
     return await query.getOne();
   }
 
-  public getEventWithAttendeesCount(id: number): SelectQueryBuilder<Event> {
+  public async getEventsWithAttendeeCountFiltered(
+    filter?: ListEvents,
+  ): Promise<any> {
+
+    let query = this.getEventWithAttendeesCount();
+
+    if (!filter) {
+      return query;
+    }
+
+    if (filter.when) {
+      switch (filter.when) {
+        case WhenEventFilter.Today: {
+          const today = 'CURDATE()';
+          const tomorrow = 'CURDATE() + INTERVAL 1 DAY';
+          const sql = `e.when >= ${today} AND e.when < ${tomorrow}`;
+          query = query.andWhere(sql);
+          break;
+        }
+        case WhenEventFilter.Tomorrow: {
+          const tomorrow = 'CURDATE() + INTERVAL 1 DAY';
+          const afterTomorrow = 'CURDATE() + INTERVAL 2 DAY';
+          const sql = `e.when >= ${tomorrow} AND e.when < ${afterTomorrow}`;
+          query = query.andWhere(sql);
+          break;
+        }
+        case WhenEventFilter.ThisWeek: {
+          const eventsWeek = 'YEARWEEK(e.when, 1)';
+          const thisWeek = 'YEARWEEK(CURDATE(), 1)';
+          const sql = `${eventsWeek} = ${thisWeek}`;
+          query = query.andWhere(sql);
+          break;
+        }
+        case WhenEventFilter.NextWeek: {
+          const eventsWeek = 'YEARWEEK(e.when, 1)';
+          const nextWeek = 'YEARWEEK(CURDATE(), 1) + 1';
+          const sql = `${eventsWeek} = ${nextWeek}`;
+          query = query.andWhere(sql);
+          break;  
+        }
+      }
+    }
+
+    return await query.getMany();
+  }
+
+  public getEventWithAttendeesCount(): SelectQueryBuilder<Event> {
+
+    // It works, but every "loadRelationCountAndMap" performs a query!
     return this.getEventsBaseQuery()
       .loadRelationCountAndMap(
-        'e.attendeesCount',
-        'e.attendees',
+        'e.attendeesCount', // Virtual property to map to
+        'e.attendees', // Relation property to count on
       )
       .loadRelationCountAndMap(
-        'e.attendeesAccepted',
-        'e.attendees',
-        'attendee',
+        'e.attendeesAccepted', // Virtual property to map to
+        'e.attendees', // Relation property to count on
+        'att', // Alias of related table?
         queryBuilder => queryBuilder
-          .where('attendee.answer = :answer', {
-            answer: AttendeeAnswer.Accepted
-          })
+          .where('att.answer = :answer', { answer: AttendeeAnswer.Accepted })
       )
+      .loadRelationCountAndMap(
+        'e.attendeesRejected', // Virtual property to map to
+        'e.attendees', // Relation property to count on
+        'att', // Alias of related table?
+        queryBuilder => queryBuilder
+          .where('att.answer = :answer', { answer: AttendeeAnswer.Rejected })
+      )
+      .loadRelationCountAndMap(
+        'e.attendeesMaybe', // Virtual property to map to
+        'e.attendees', // Relation property to count on
+        'att', // Alias of related table?
+        queryBuilder => queryBuilder
+          .where('att.answer = :answer', { answer: AttendeeAnswer.Maybe })
+      );
   }
 }
