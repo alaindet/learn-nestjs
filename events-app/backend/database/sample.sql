@@ -15,3 +15,6 @@ INSERT INTO `attendees` (`id`, `name`, `event_id`) VALUES
 (5, 'Joe', 2),
 (6, 'Donald', 2),
 (7, 'Harry', 4);
+
+INSERT INTO `users` (`username`, `password`, `email`, `firstName`, `lastName`, `profile_id`)
+VALUES ('johndoe', 'johndoe', 'johndoe@example.com', 'John', 'Doe', NULL);

@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Strategy } from 'passport-local';
 
-import { User } from './entities/user.entity';
+import { User } from '../entities/user.entity';
 
 export const STRATEGY_NAME = 'local';
 

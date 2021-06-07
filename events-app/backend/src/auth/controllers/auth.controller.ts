@@ -1,7 +1,8 @@
-import { Controller, Post, UseGuards, Request } from '@nestjs/common';
+import { Controller, Post, UseGuards, Request, Get } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
-import { STRATEGY_NAME as LOCAL_STRATEGY_NAME } from '../local.strategy';
+import { STRATEGY_NAME as LOCAL_STRATEGY_NAME } from '../strategies/local.strategy';
+import { STRATEGY_NAME as JWT_STRATEGY_NAME } from '../strategies/jwt.strategy';
 import { AuthService } from '../services/auth.service';
 
 @Controller('/auth')
@@ -21,5 +22,11 @@ export class AuthController {
     const token = this.authService.getTokenForUser(request.user);
 
     return { userId, token };
+  }
+
+  @Get('/profile')
+  @UseGuards(AuthGuard(JWT_STRATEGY_NAME))
+  async getProfile(@Request() request) {
+    return request.user;
   }
 }
