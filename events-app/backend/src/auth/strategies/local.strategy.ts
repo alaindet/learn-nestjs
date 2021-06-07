@@ -3,6 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Strategy } from 'passport-local';
+import { compare } from 'bcrypt';
 
 import { User } from '../entities/user.entity';
 
@@ -31,8 +32,9 @@ export class LocalStrategy extends PassportStrategy(Strategy, STRATEGY_NAME) {
       throw new UnauthorizedException();
     }
 
-    // TODO: Hash compare?
-    if (password !== user.password) {
+    const passwordAreSame = await compare(password, user.password);
+
+    if (!passwordAreSame) {
       this.logger.debug(`Invalid credentials for user ${username}`);
     }
 

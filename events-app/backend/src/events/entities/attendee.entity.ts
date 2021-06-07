@@ -1,4 +1,5 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Expose } from 'class-transformer';
 
 import { Event } from './event.entity';
 
@@ -12,15 +13,18 @@ export enum AttendeeAnswer {
 export class Attendee {
 
   @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
+  @Expose()
   id: number;
 
   @Column('varchar')
+  @Expose()
   name: string;
 
   @Column('enum', {
     enum: AttendeeAnswer,
     default: AttendeeAnswer.Accepted,
   })
+  @Expose()
   answer: number;
 
   // This is mandatory is the other entity has @OneToMany

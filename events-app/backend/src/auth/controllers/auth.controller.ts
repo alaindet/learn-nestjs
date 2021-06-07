@@ -1,9 +1,9 @@
-import { Controller, Post, UseGuards, Request, Get } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import { Controller, Post, UseGuards, Get } from '@nestjs/common';
 
-import { STRATEGY_NAME as LOCAL_STRATEGY_NAME } from '../strategies/local.strategy';
-import { STRATEGY_NAME as JWT_STRATEGY_NAME } from '../strategies/jwt.strategy';
 import { AuthService } from '../services/auth.service';
+import { CurrentUser } from '../decorators/current-user.decorator';
+import { User } from '../entities/user.entity';
+import { AuthLocalGuard } from '../guards/auth-local.guard';
 
 @Controller('/auth')
 export class AuthController {
@@ -13,20 +13,11 @@ export class AuthController {
   ) {}
 
   @Post('/login')
-  @UseGuards(AuthGuard(LOCAL_STRATEGY_NAME))
-  async login(@Request() request) {
-
-    console.log('request.user', request.user);
-
-    const userId = request.user.id;
-    const token = this.authService.getTokenForUser(request.user);
-
+  @UseGuards(AuthLocalGuard)
+  async login(@CurrentUser() user: User) {
+  // async login(@Request() request) {
+    const userId = user.id;
+    const token = this.authService.getTokenForUser(user);
     return { userId, token };
-  }
-
-  @Get('/profile')
-  @UseGuards(AuthGuard(JWT_STRATEGY_NAME))
-  async getProfile(@Request() request) {
-    return request.user;
   }
 }

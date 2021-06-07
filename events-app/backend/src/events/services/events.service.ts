@@ -5,7 +5,10 @@ import { Repository, SelectQueryBuilder, DeleteResult } from 'typeorm';
 import { paginate, PaginateOptions } from 'src/shared/pagination/pagination';
 import { AttendeeAnswer } from '../entities/attendee.entity';
 import { Event } from '../entities/event.entity';
+import { User } from '../../auth/entities/user.entity';
 import { ListEvents, WhenEventFilter } from '../input/filters/list.events';
+import { CreateEventDto } from '../input/dtos/create-event.dto';
+import { UpdateEventDto } from '../input/dtos/update-event.dto';
 
 @Injectable()
 export class EventsService {
@@ -17,13 +20,7 @@ export class EventsService {
     private readonly eventsRepository: Repository<Event>,
   ) {}
 
-  private getEventsBaseQuery(): SelectQueryBuilder<Event> {
-    return this.eventsRepository
-      .createQueryBuilder('e')
-      .orderBy('e.id', 'DESC');
-  }
-
-  public async getEvent(id: number): Promise<Event | undefined> {
+  public async getEvent(id: string): Promise<Event | undefined> {
     const query = this.getEventWithAttendeesCount()
       .andWhere('e.id = :id', { id });
     this.logger.debug(query.getSql());
@@ -70,6 +67,36 @@ export class EventsService {
       );
   }
 
+  public async createEvent(dto: CreateEventDto, user: User): Promise<Event> {
+    const when = new Date(dto.when);
+    const { password, ...organizer } = user;
+    return await this.eventsRepository.save({ ...dto, when, organizer });
+  }
+
+  public async updateEvent(event: Event, dto: UpdateEventDto): Promise<Event> {
+    const when = dto.when ? new Date(dto.when) : event.when;
+    return await this.eventsRepository.save({ ...event, ...dto, when });
+  }
+
+  public async deleteEvent(event: Event): Promise<void> {
+    this.eventsRepository.remove(event);
+  }
+
+  // Delete via query builder
+  // public async deleteEvent(id: number): Promise<DeleteResult> {
+  //   return await this.eventsRepository
+  //     .createQueryBuilder('e')
+  //     .delete()
+  //     .where('id = :id', { id })
+  //     .execute();
+  // }
+
+  private getEventsBaseQuery(): SelectQueryBuilder<Event> {
+    return this.eventsRepository
+      .createQueryBuilder('e')
+      .orderBy('e.id', 'DESC');
+  }
+
   private async getEventsWithAttendeeCountFiltered(
     filter?: ListEvents,
   ): Promise<SelectQueryBuilder<Event>> {
@@ -108,19 +135,11 @@ export class EventsService {
           const nextWeek = 'YEARWEEK(CURDATE(), 1) + 1';
           const sql = `${eventsWeek} = ${nextWeek}`;
           query = query.andWhere(sql);
-          break;  
+          break;
         }
       }
     }
 
     return await query;
-  }
-
-  public async deleteEvent(id: number): Promise<DeleteResult> {
-    return await this.eventsRepository
-      .createQueryBuilder('e')
-      .delete()
-      .where('id = :id', { id })
-      .execute();
   }
 }

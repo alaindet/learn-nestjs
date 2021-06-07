@@ -1,27 +1,28 @@
-import { Body, Controller, Delete, Get, HttpCode, Logger, Param, ParseIntPipe, Patch, Post, ValidationPipe, NotFoundException, Query, UsePipes } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Body, Controller, Delete, Get, HttpCode, Logger, Param, Patch, Post, ValidationPipe, NotFoundException, Query, UsePipes, UseGuards, ForbiddenException, SerializeOptions, UseInterceptors, ClassSerializerInterceptor } from '@nestjs/common';
 
 import { CreateEventDto } from '../input/dtos/create-event.dto';
 import { UpdateEventDto } from '../input/dtos/update-event.dto';
-import { Event } from '../entities/event.entity';
-import { Attendee } from '../entities/attendee.entity';
 import { EventsService } from '../services/events.service';
 import { ListEvents } from '../input/filters/list.events';
+import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
+import { User } from '../../auth/entities/user.entity';
+import { AuthJwtGuard } from 'src/auth/guards/auth-jwt.guard';
 
 @Controller('/events')
+@SerializeOptions({
+  strategy: 'excludeAll',
+})
 export class EventsController {
 
   private readonly logger = new Logger(EventsController.name);
 
   constructor(
-    @InjectRepository(Event) private repository: Repository<Event>,
-    @InjectRepository(Attendee) private attendeeRepository: Repository<Attendee>,
     private readonly eventsService: EventsService,
   ) {}
 
   @Get('/')
   @UsePipes(new ValidationPipe({ transform: true })) // Provides default values
+  @UseInterceptors(ClassSerializerInterceptor)
   async findAll(@Query() filter: ListEvents) {
     this.logger.log('EventsController.findall');
     const events = await this.eventsService
@@ -34,7 +35,8 @@ export class EventsController {
   }
 
   @Get('/:id')
-  async findOne(@Param('id', ParseIntPipe) id: number) {
+  @UseInterceptors(ClassSerializerInterceptor)
+  async findOne(@Param('id') id: string) {
     this.logger.log('EventsController.findOne');
     const event = await this.eventsService.getEvent(id);
 
@@ -46,46 +48,53 @@ export class EventsController {
   }
 
   @Post('/')
-  // @UsePipes()
+  @UseGuards(AuthJwtGuard)
+  @UseInterceptors(ClassSerializerInterceptor)
   async create(
-    // @Body(new ValidationPipe({ groups: ['create'] })) input: CreateEventDto,
-    @Body(new ValidationPipe()) input: CreateEventDto,
+    @Body(new ValidationPipe()) dto: CreateEventDto,
+    @CurrentUser() user: User,
   ) {
-    return await this.repository.save({
-      ...input,
-      when: new Date(input.when),
-    });
+    return await this.eventsService.createEvent(dto, user);
   }
 
   @Patch('/:id')
+  @UseGuards(AuthJwtGuard)
+  @UseInterceptors(ClassSerializerInterceptor)
   async update(
     @Param('id') id: string,
-    // @Body(new ValidationPipe({ groups: ['update'] })) input: UpdateEventDto,
-    @Body(new ValidationPipe()) input: UpdateEventDto,
+    @Body(new ValidationPipe()) dto: UpdateEventDto,
+    @CurrentUser() user: User,
   ) {
-    const event = await this.repository.findOne(id);
-    return await this.repository.save({
-      ...event,
-      ...input,
-      when: input.when ? new Date(input.when) : event.when,
-    });
+    const event = await this.eventsService.getEvent(id);
+
+    if (!event) {
+      throw new NotFoundException(`No event found with id "${id}"`);
+    }
+
+    if (event.organizerId !== user.id) {
+      throw new ForbiddenException(null, 'You cannot perform this action');
+    }
+
+    return await this.eventsService.updateEvent(event, dto);
   }
 
   @Delete('/:id')
+  @UseGuards(AuthJwtGuard)
   @HttpCode(204)
-  async remove(@Param('id', ParseIntPipe) id: number) {
-    // const event = await this.repository.findOne(id);
+  async remove(
+    @Param('id') id: string,
+    @CurrentUser() user: User,
+  ) {
+    const event = await this.eventsService.getEvent(id);
 
-    // if (!event) {
-    //   throw new NotFoundException();
-    // }
-
-    // await this.repository.remove(event);
-
-    const deleted = await this.eventsService.deleteEvent(id);
-
-    if (deleted.affected !== 1) {
+    if (!event) {
       throw new NotFoundException();
     }
+
+    if (event.organizerId !== user.id) {
+      throw new ForbiddenException(null, 'You cannot perform this action');
+    }
+
+    await this.eventsService.deleteEvent(event);
   }
 }

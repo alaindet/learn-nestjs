@@ -1,17 +1,22 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Expose } from 'class-transformer';
 
-import { Attendee, AttendeeAnswer } from './attendee.entity';
+import { Attendee } from './attendee.entity';
+import { User } from 'src/auth/entities/user.entity';
 
 @Entity('events')
 export class Event {
 
   @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
+  @Expose()
   id: number;
 
   @Column('varchar', { unique: true, length: 255 })
+  @Expose()
   name: string;
 
   @Column('varchar', { length: 255 })
+  @Expose()
   description: string;
 
   @Column('datetime', {
@@ -20,9 +25,11 @@ export class Event {
       to: (date: Date): string => date.toISOString(),
     }
   })
+  @Expose()
   when: Date;
 
   @Column('varchar', { length: 255 })
+  @Expose()
   where: string;
 
   @OneToMany(
@@ -33,6 +40,7 @@ export class Event {
       cascade: true,
     },
   )
+  @Expose()
   attendees: Attendee[];
 
   // Virtual properties, no column
@@ -40,4 +48,20 @@ export class Event {
   attendeesAccepted?: number;
   attendeesMaybe?: number;
   attendeesRejected?: number;
+
+  @ManyToOne(
+    () => User,
+    user => user.organized,
+  )
+  @JoinColumn({ name: 'organizer_id' })
+  @Expose()
+  organizer: User;
+
+  @Column({
+    type: 'int',
+    name: 'organizer_id',
+    unsigned: true,
+    nullable: true,
+  })
+  organizerId: number;
 }
