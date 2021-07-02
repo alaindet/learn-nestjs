@@ -9,9 +9,10 @@ import { UserModule } from './user/user.module';
 const typeOrmConfig: TypeOrmModuleOptions = {
   type: 'mysql',
   host: 'database',
+  // host: 'localhost',
   port: 3306,
-  username: 'root',
-  password: 'root',
+  username: 'adminapp',
+  password: 'adminapp',
   database: 'adminapp',
 
   // TODO: Do not use these in production
